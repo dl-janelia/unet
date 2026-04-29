@@ -1074,6 +1074,7 @@ if isinstance(new_net, UNet):
 #   <li>Downsample: Translationally equivariant for shifts that are multiples of the downsampling factor.</li>
 #   <li>Upsample: Translationally equivariant for any shift of the lower-resolution input.</li>
 # </ol>
+# A U-Net with valid padding can be translationally equivariant under shifts that are multiples of the product of the downsample factors. However only if the output size is a multiple of that product of downsample factors (see Bonus Exercise).
 # </div>
 
 # %% [markdown] tags=[]
