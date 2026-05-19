@@ -7,13 +7,13 @@
 #
 # In this notebook, we will implement a U-Net architecture. Through this exercise you should gain an understanding of the U-Net architecture in particular as well as learn how to approach the implementation of an architecture in general and familiarize yourself a bit more with the inner workings of pytorch.
 #
-# The exercise is split into three parts:
+# The exercise is split into five parts:
 #
 # In part 1 you will implement the building blocks of the U-Net. That includes the convolutions, downsampling, upsampling and skip connections. We will go in the order of how difficult they are to implement.
 #
 # In part 2 you will combine the modules you've built in part 1 to implement the U-Net module.
 #
-# In part 3 and 4 are light on coding tasks but you will learn about two important concepts: receptive fields and translational equivariance.
+# Parts 3 and 4 are light on coding tasks but you will learn about two important concepts: receptive fields and translational equivariance.
 #
 # Finally, in part 5 you will train your first U-Net of the course! This will just be a first flavor though since you will learn much more about that in the next exercise.
 #
@@ -127,7 +127,7 @@ up = torch.nn.Upsample(scale_factor=2, mode="nearest")
 up(sample_2d_input)
 
 # %% tags=["solution"]
-# TASK 1.3: vary scale factor and mode
+# SOLUTION 1.3: vary scale factor and mode
 up3 = torch.nn.Upsample(scale_factor=3, mode="bilinear")
 up3(sample_2d_input)
 
@@ -180,7 +180,7 @@ max_pool(sample_2d_input)
 # %% tags=["task"]
 class Downsample(torch.nn.Module):
     def __init__(self, downsample_factor: int):
-        """Initialize a MaxPool2d module with the input downsample fator"""
+        """Initialize a MaxPool2d module with the input downsample factor"""
 
         super().__init__()
 
@@ -209,7 +209,7 @@ class Downsample(torch.nn.Module):
 # %% tags=["solution"]
 class Downsample(torch.nn.Module):
     def __init__(self, downsample_factor: int):
-        """Initialize a MaxPool2d module with the input downsample fator"""
+        """Initialize a MaxPool2d module with the input downsample factor"""
 
         super().__init__()
 
@@ -239,7 +239,7 @@ class Downsample(torch.nn.Module):
 
 
 # %% [markdown] tags=[]
-# We wrote some rudimentary tests for each of the torch modules you are writing. If you get an error from your code or an AssertionError from the test, you should probably have another look ath your implementation.
+# We wrote some rudimentary tests for each of the torch modules you are writing. If you get an error from your code or an AssertionError from the test, you should probably have another look at your implementation.
 
 # %% tags=[]
 unet_tests.TestDown(Downsample).run()
@@ -432,7 +432,23 @@ apply_and_show_random_image(conv, dataset)
 
 # %% tags=["task"]
 def center_crop(x, target_spatial_shape):
-    """Center-crop x to match spatial dimensions given by target_spatial_shape."""
+    """Center-crop ``x`` so its spatial dimensions match ``target_spatial_shape``.
+
+    The first two dimensions of ``x`` (batch and channel) are kept as-is; only
+    the trailing spatial dimensions are cropped. The crop is centered: any
+    excess on each side is removed symmetrically (when the size difference is
+    odd, the extra pixel is taken off the trailing side because we use
+    floor-division).
+
+    Args:
+        x: Input tensor shaped ``(batch, channels, *spatial)``.
+        target_spatial_shape: Target sizes for the spatial dimensions only
+            (e.g. ``(H, W)`` for 2D or ``(D, H, W)`` for 3D). Every entry must
+            be ``<=`` the corresponding spatial size of ``x``.
+
+    Returns:
+        A view of ``x`` cropped to ``(batch, channels, *target_spatial_shape)``.
+    """
 
     x_target_size = x.size()[:2] + torch.Size(target_spatial_shape)
 
@@ -452,7 +468,23 @@ class CropAndConcat(torch.nn.Module):
 
 # %% tags=["solution"]
 def center_crop(x, target_spatial_shape):
-    """Center-crop x to match spatial dimensions given by target_spatial_shape."""
+    """Center-crop ``x`` so its spatial dimensions match ``target_spatial_shape``.
+
+    The first two dimensions of ``x`` (batch and channel) are kept as-is; only
+    the trailing spatial dimensions are cropped. The crop is centered: any
+    excess on each side is removed symmetrically (when the size difference is
+    odd, the extra pixel is taken off the trailing side because we use
+    floor-division).
+
+    Args:
+        x: Input tensor shaped ``(batch, channels, *spatial)``.
+        target_spatial_shape: Target sizes for the spatial dimensions only
+            (e.g. ``(H, W)`` for 2D or ``(D, H, W)`` for 3D). Every entry must
+            be ``<=`` the corresponding spatial size of ``x``.
+
+    Returns:
+        A view of ``x`` cropped to ``(batch, channels, *target_spatial_shape)``.
+    """
 
     x_target_size = x.size()[:2] + torch.Size(target_spatial_shape)
     offset = tuple((a - b) // 2 for a, b in zip(x.size(), x_target_size))
@@ -1166,13 +1198,13 @@ apply_and_show_random_image(simple_net, dataset)
 # What are the receptive field sizes of the following operations?
 #
 # 1. <code style="color: black">torch.nn.Conv2d(1, 5, 3)</code>
-# 2. <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5,5,3))</code>
-# 3. <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5,5,5))</code>
+# 2. <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5, 5, 3))</code>
+# 3. <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5, 5, 5))</code>
 # 4. <code style="color: black">Downsample(3)</code>
-# 5. <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(2), ConvBlock(5,5,3)</code>
+# 5. <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(2), ConvBlock(5, 5, 3))</code>
 # 6. <code style="color: black">torch.nn.Upsample(2)</code>
-# 7. <code style="color: black">torch.nn.Sequential(ConvBlock(1,5,3), Upsample(2), ConvBlock(5,5,3))</code>
-# 8. <code style="color: black">torch.nn.Sequential(ConvBlock(1,5,3), Downsample(3), ConvBlock(5,5,3), Upsample(3), ConvBlock(5,5,3))</code>
+# 7. <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Upsample(2), ConvBlock(5, 5, 3))</code>
+# 8. <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(3), ConvBlock(5, 5, 3), Upsample(3), ConvBlock(5, 5, 3))</code>
 # 9. <code style="color: black">UNet(depth=2, in_channels=1, downsample_factor=3, kernel_size=3)</code>
 #
 #
@@ -1278,6 +1310,8 @@ if isinstance(new_net, UNet):
 # We will get more into the details of evaluating semantic segmentation models in the next exercise. For now, we will provide an example pipeline that will train a U-Net to classify each pixel in an image of cells as foreground or background. You should have seen training loops like this in the pre-course exercises, so there is no implementation task here.
 #
 # We will use Tensorboard to log our training runs, so there is code in the train loop to log aspects of the training to Tensorboard.
+#
+# **A note on the loss:** below we use `MSELoss` together with a `Sigmoid` final activation. For foreground/background segmentation, `BCELoss` (or `BCEWithLogitsLoss` without a final sigmoid) is the more standard choice. We use MSE here purely for simplicity — in the next exercise you'll see why BCE/Dice are the better default for segmentation tasks.
 
 # %% tags=[]
 train_dataset = NucleiDataset("nuclei_train_data", transforms.RandomCrop(256))
@@ -1512,7 +1546,7 @@ for epoch in range(n_epochs):
 # %% tags=["task"]
 class Downsample(torch.nn.Module):
     def __init__(self, downsample_factor: int, ndim: int = 2):
-        """Initialize a MaxPool2d module with the input downsample fator"""
+        """Initialize a MaxPool2d module with the input downsample factor"""
 
         super().__init__()
         if ndim not in (2, 3):
@@ -1749,13 +1783,13 @@ class UNet(torch.nn.Module):
 # %% tags=["solution"]
 class Downsample(torch.nn.Module):
     def __init__(self, downsample_factor: int, ndim: int = 2):
-        """Initialize a MaxPool2d module with the input downsample fator"""
+        """Initialize a MaxPool2d module with the input downsample factor"""
 
         super().__init__()
         if ndim not in (2, 3):
             msg = f"Invalid number of dimensions: {ndim=}. Options are 2 or 3."
             raise ValueError(msg)
-
+        self.ndim = ndim
         self.downsample_factor = downsample_factor
         # SOLUTION 10A: Initialize the maxpool module
         # Define what the downop should be based on `ndim`.
@@ -1776,7 +1810,7 @@ class Downsample(torch.nn.Module):
         return True
 
     def forward(self, x):
-        if not self.check_valid(tuple(x.size()[-2:])):
+        if not self.check_valid(tuple(x.size()[-self.ndim :])):
             raise RuntimeError(
                 "Can not downsample shape %s with factor %s"
                 % (x.size(), self.downsample_factor)
@@ -2039,7 +2073,7 @@ class UNet(torch.nn.Module):
             the first downsampled layer, and level=depth - 1 is the bottom layer.
 
         Output (tuple[int, int]): The number of input and output feature maps
-            of the encoder convolutional pass in the given level.
+            of the decoder convolutional pass in the given level.
         """
         # SOLUTION 10K: Implement this function.
         fmaps_out = self.num_fmaps * self.fmap_inc_factor ** (level)
@@ -2314,7 +2348,7 @@ class UNet(torch.nn.Module):
             the first downsampled layer, and level=depth - 1 is the bottom layer.
 
         Output (tuple[int, int]): The number of input and output feature maps
-            of the encoder convolutional pass in the given level.
+            of the decoder convolutional pass in the given level.
         """
         # SOLUTION 10K: Implement this function.
         fmaps_out = self.num_fmaps * self.fmap_inc_factor ** (level)
