@@ -410,6 +410,18 @@ apply_and_show_random_image(conv, dataset)
 # If you'd like, you can test your assumption by editing the `ConvBlock` to pass your own calculated value to the `padding` keyword in the conv module and rerun the test
 # </div>
 
+# %% [markdown] tags=["solution"]
+# <div class="alert alert-block alert-warning">
+#
+# ```
+# if padding == "same": `
+#     pad = kernel_size // 2
+# elif padding == "valid":
+#     pad = 0
+# else:
+#     raise ValueError("Invalid padding mode")
+# ```
+
 # %% [markdown] tags=[]
 # ### Component 4: Skip Connections and Concatenation
 
@@ -1012,7 +1024,7 @@ class UNet(torch.nn.Module):
         Args:
             depth:
                 The number of levels in the U-Net. 2 is the smallest that really
-                makes sense for the U-Net architecture, as a one layer U-Net is
+                makes sense for the U-Net architecture, as a one level U-Net is
                 basically just 2 conv blocks.
             in_channels:
                 The number of input channels in your dataset.
@@ -1197,17 +1209,31 @@ apply_and_show_random_image(simple_net, dataset)
 # <h4>Question: Receptive Field Size</h4>
 # What are the receptive field sizes of the following operations?
 #
-# 1. <code style="color: black">torch.nn.Conv2d(1, 5, 3)</code>
-# 2. <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5, 5, 3))</code>
-# 3. <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5, 5, 5))</code>
-# 4. <code style="color: black">Downsample(3)</code>
-# 5. <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(2), ConvBlock(5, 5, 3))</code>
-# 6. <code style="color: black">torch.nn.Upsample(2)</code>
-# 7. <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Upsample(2), ConvBlock(5, 5, 3))</code>
-# 8. <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(3), ConvBlock(5, 5, 3), Upsample(3), ConvBlock(5, 5, 3))</code>
-# 9. <code style="color: black">UNet(depth=2, in_channels=1, downsample_factor=3, kernel_size=3)</code>
+# <ol>
+# <li> <code style="color: black">torch.nn.Conv2d(1, 5, 3)</code></li>
+# <li> <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5, 5, 3))</code></li>
+# <li> <code style="color: black">torch.nn.Sequential(torch.nn.Conv2d(1, 5, 3), torch.nn.Conv2d(5, 5, 5))</code></li>
+# <li> <code style="color: black">Downsample(3)</code></li>
+# <li> <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(2), ConvBlock(5, 5, 3))</code></li>
+# <li> <code style="color: black">torch.nn.Upsample(2)</code></li>
+# <li> <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Upsample(2), ConvBlock(5, 5, 3))</code></li>
+# <li> <code style="color: black">torch.nn.Sequential(ConvBlock(1, 5, 3), Downsample(3), ConvBlock(5, 5, 3), Upsample(3), ConvBlock(5, 5, 3))</code></li>
+# <li> <code style="color: black">UNet(depth=2, in_channels=1, downsample_factor=3, kernel_size=3)</code></li>
 #
-#
+# </div>
+
+# %% [markdown] tags=["solution"]
+# <div class="alert alert-block alert-warning">
+# <ol>
+# <li> 3x3 </li>
+# <li> 5x5 </li>
+# <li> 7x7 </li>
+# <li> 3x3 </li>
+# <li> 14x14 </li>
+# <li> 1x1 </li>
+# <li> 8x8 </li>
+# <li> 22x22 </li>
+# <li> 22x22 </li>
 # </div>
 
 # %% [markdown] tags=[]
@@ -1251,6 +1277,19 @@ if isinstance(new_net, UNet):
 #
 # <hr style="height:2px;">
 
+# %% [markdown] tags=["solution"]
+# <div class="alert alert-block alert-success">
+# <ol>
+#   <li>The depth and the downsample factor have the most effect on the receptive field size.</li>
+#   <li>No - other factors such as the number of feature maps also affect the capacity of the network to learn complex functions. Additionally, not all receptive fields are created equal - for example, you can have a large receptive field by choosing a very large downsample factor, but this will result in a very coarse receptive field that may not be ideal for your task.</li>
+#   <li>The receptive field size is independent of the size of images you feed to your UNet. You want the images to be larger than the receptive field size - otherwise you need to pad with zeros and learn on the padded pixels instead of real data. But once your images are as big as the receptive field size, increasing the image size does not allow your network to look at more pixels at once. It does however increase the number of pixels that contribute to the loss which can make training more stable, similar to increasing the batch size.</li>
+#   <li>The receptive field size is equivalent ot the amount of padding you would need for "same" instead of "valid".</li>
+#   <li>Open discussion!</li>
+# </ol>
+# </div>
+#
+# <hr style="height:2px;">
+
 # %% [markdown] tags=[]
 # ## Translational equivariance
 #
@@ -1289,6 +1328,17 @@ if isinstance(new_net, UNet):
 # </ol>
 # </div>
 
+# %% [markdown] tags=["solution"]
+# <div class="alert alert-block alert-warning">
+#
+# <ol>
+#   <li>ConvBlock: Translationally equivariant for any shift.</li>
+#   <li>Downsample: Translationally equivariant for shifts that are multiples of the downsampling factor.</li>
+#   <li>Upsample: Translationally equivariant for any shift of the lower-resolution input.</li>
+# </ol>
+# A U-Net with valid padding can be translationally equivariant under shifts that are multiples of the product of the downsample factors. However only if the output size is a multiple of that product of downsample factors (see Bonus Exercise).
+# </div>
+
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-success">
 #     <h2>Checkpoint 4</h2>
@@ -1305,6 +1355,16 @@ if isinstance(new_net, UNet):
 #
 # <hr style="height:2px;">
 
+# %% [markdown] tags=["solution"]
+# <div class="alert alert-block alert-success">
+# <ol>
+#   <li>Seamless stitching is equivalent to translational equivariance under shifts of your tile size. If you want to guarantee no stitching artifacts, you need to ensure that your network is translationally equivariant under shifts of your output tile size.</li>
+#   <li>Padding breaks translational equivariance. The zeros do affect the output and they appear at different locations in the unshifted and shifted inputs.</li>
+#   <li>One simple way to design an architecture to achieve translation invariance is to use an equivariant architecture and then apply a global pooling operation at the end.</li>
+# </ol>
+# </div>
+#
+# <hr style="height:2px;">
 # %% [markdown] tags=[]
 # ## Train a U-Net!
 # We will get more into the details of evaluating semantic segmentation models in the next exercise. For now, we will provide an example pipeline that will train a U-Net to classify each pixel in an image of cells as foreground or background. You should have seen training loops like this in the pre-course exercises, so there is no implementation task here.
