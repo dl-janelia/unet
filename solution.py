@@ -75,7 +75,7 @@ show_random_dataset_image(dataset)
 
 # %% [markdown] tags=[]
 # ### Component 1: Upsampling
-
+# <img src="./static/up_layer.png" alt="UNet_up_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they used a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) instead.
 
@@ -139,7 +139,7 @@ apply_and_show_random_image(up, dataset)
 
 # %% [markdown] tags=[]
 # ### Component 2: Downsampling
-
+# <img src="./static/conv_layer.png" alt="UNet_down_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # Between levels of the U-Net on the left side, there is a downsample step. Traditionally, this is done with a 2x2 max pooling operation. There are other ways to downsample, for example with average pooling, but we will stick with max pooling for this exercise.
 
@@ -250,7 +250,7 @@ apply_and_show_random_image(down, dataset)
 
 # %% [markdown] tags=[]
 # ### Component 3: Convolution Block
-
+# <img src="./static/conv_layer.png" alt="UNet_conv_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # #### Convolution
 # A U-Net is a convolutional neural network, which means that the main type of operation is a convolution. Convolutions with defined kernels were covered briefly in the pre-course materials.
@@ -424,7 +424,7 @@ apply_and_show_random_image(conv, dataset)
 
 # %% [markdown] tags=[]
 # ### Component 4: Skip Connections and Concatenation
-
+# <img src="./static/concat_layer.png" alt="UNet_concat_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # The skip connections between the left and right side of the U-Net are central to successfully obtaining high-resolution output. At each layer, the output of the left conv block is concatenated to the output of the upsample block on the right side from the last layer below. Since upsampling, especially with the "nearest" algorithm, does not actually add high resolution information, the concatenation of the left side conv block output is crucial to generate high resolution segmentations.
 #
@@ -473,7 +473,7 @@ def center_crop(x, target_spatial_shape):
 
 class CropAndConcat(torch.nn.Module):
     def forward(self, encoder_output, upsample_output):
-        upsample_spatial_shape = upsample_output.size()[2:]
+        upsample_spatial_shape = upsample_output.size()[2:]  # noqa: F841
         # TASK 4: Implement the forward function
         ...
 
@@ -520,7 +520,7 @@ unet_tests.TestCropAndConcat(CropAndConcat).run()
 
 # %% [markdown] tags=[]
 # ### Component 5: Output Block
-
+# <img src="./static/final_layer.png" alt="UNet_final_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # The final block we need to write for our U-Net is the output convolution block. The exact format of output you want depends on your task, so our U-Net must be flexible enough to handle different numbers of out channels and different final activation functions.
 
