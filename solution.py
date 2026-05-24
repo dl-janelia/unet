@@ -78,7 +78,7 @@ show_random_dataset_image(dataset)
 # %% [markdown] tags=[]
 # <img src="./static/up_layer.png" alt="UNet_up_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
-# We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they used a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) instead.
+# We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they used a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module ( [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) ) instead.
 
 
 # %% [markdown] tags=[]
@@ -100,7 +100,7 @@ sample_2d_input.shape, sample_2d_input
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
 #     <h4>Task 1: Try out different upsampling techniques</h4>
-#     <p>For our U-net, we will use the built-in PyTorch Upsample Module. Here we will practice declaring and calling an Upsample module with different parameters.</p>
+#     <p>For our U-net, we will use the built-in PyTorch Upsample Module ([torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample)). Here we will practice declaring and calling an Upsample module with different parameters.</p>
 #     <ol>
 #         <li>Declare an instance of the pytorch Upsample module with <code style="color: black">scale_factor</code> 2 and mode <code style="color: black">"nearest"</code>.</li>
 #         <li>Call the instance of Upsample on the <code style="color: black">sample_2d_input</code> to see what the nearest mode does.</li>
@@ -1231,6 +1231,7 @@ apply_and_show_random_image(simple_net, dataset)
 
 # %% [markdown] tags=["solution"]
 # <div class="alert alert-block alert-warning">
+# <h2>Solution</h2>
 # <ol>
 # <li> 3x3 </li>
 # <li> 5x5 </li>
@@ -1286,6 +1287,7 @@ if isinstance(new_net, UNet):
 
 # %% [markdown] tags=["solution"]
 # <div class="alert alert-block alert-success">
+# <h2>Solution</h2>
 # <ol>
 #   <li>The depth and the downsample factor have the most effect on the receptive field size.</li>
 #   <li>No - other factors such as the number of feature maps also affect the capacity of the network to learn complex functions. Additionally, not all receptive fields are created equal - for example, you can have a large receptive field by choosing a very large downsample factor, but this will result in a very coarse receptive field that may not be ideal for your task.</li>
@@ -1337,7 +1339,7 @@ if isinstance(new_net, UNet):
 
 # %% [markdown] tags=["solution"]
 # <div class="alert alert-block alert-warning">
-#
+# <h2>Solution</h2>
 # <ol>
 #   <li>ConvBlock: Translationally equivariant for any shift.</li>
 #   <li>Downsample: Translationally equivariant for shifts that are multiples of the downsampling factor.</li>
@@ -1364,6 +1366,7 @@ if isinstance(new_net, UNet):
 
 # %% [markdown] tags=["solution"]
 # <div class="alert alert-block alert-success">
+# <h2>Solution</h2>
 # <ol>
 #   <li>Seamless stitching is equivalent to translational equivariance under shifts of your tile size. If you want to guarantee no stitching artifacts, you need to ensure that your network is translationally equivariant under shifts of your output tile size.</li>
 #   <li>Padding breaks translational equivariance. The zeros do affect the output and they appear at different locations in the unshifted and shifted inputs.</li>
@@ -1607,6 +1610,7 @@ for epoch in range(n_epochs):
 # <div class="alert alert-block alert-info">
 #     <h3>Task 10: Make U-Net building blocks configurable for 2D and 3D data! </h3>
 #     To make the same class usable for 2D and 3D data we will add an argument `ndim` to each building block.
+#     Here you can find information about [torch.nn.Conv3d](https://docs.pytorch.org/docs/2.12/generated/torch.nn.Conv3d.html)
 # </div>
 
 
