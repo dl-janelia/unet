@@ -75,6 +75,7 @@ show_random_dataset_image(dataset)
 
 # %% [markdown] tags=[]
 # ### Component 1: Upsampling
+# %% [markdown] tags=[]
 # <img src="./static/up_layer.png" alt="UNet_up_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they used a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) instead.
@@ -139,8 +140,9 @@ apply_and_show_random_image(up, dataset)
 
 # %% [markdown] tags=[]
 # ### Component 2: Downsampling
+
 # %% [markdown] tags=[]
-# <img src="./static/conv_layer.png" alt="UNet_down_layer" style="width: 1500px;"/>
+# <img src="./static/down_layer.png" alt="UNet_down_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # Between levels of the U-Net on the left side, there is a downsample step. Traditionally, this is done with a 2x2 max pooling operation. There are other ways to downsample, for example with average pooling, but we will stick with max pooling for this exercise.
 
