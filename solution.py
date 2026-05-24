@@ -78,7 +78,7 @@ show_random_dataset_image(dataset)
 # %% [markdown] tags=[]
 # <img src="./static/up_layer.png" alt="UNet_up_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
-# We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they used a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module ( [torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) ) instead.
+# We will start with the Upsample module that we will use in our U-Net. The right side of the U-Net contains upsampling between the levels. There are many ways to upsample: in the original U-Net, they used a transposed convolution, but this has since fallen a bit out of fashion so we will use the PyTorch Upsample Module ([torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample) ) instead.
 
 
 # %% [markdown] tags=[]
@@ -100,7 +100,7 @@ sample_2d_input.shape, sample_2d_input
 # %% [markdown] tags=[]
 # <div class="alert alert-block alert-info">
 #     <h4>Task 1: Try out different upsampling techniques</h4>
-#     <p>For our U-net, we will use the built-in PyTorch Upsample Module ([torch.nn.Upsample](https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample)). Here we will practice declaring and calling an Upsample module with different parameters.</p>
+#     <p>For our U-net, we will use the built-in PyTorch Upsample Module <a href=https://pytorch.org/docs/stable/generated/torch.nn.Upsample.html#torch.nn.Upsample>torch.nn.Upsample</a>. Here we will practice declaring and calling an Upsample module with different parameters.</p>
 #     <ol>
 #         <li>Declare an instance of the pytorch Upsample module with <code style="color: black">scale_factor</code> 2 and mode <code style="color: black">"nearest"</code>.</li>
 #         <li>Call the instance of Upsample on the <code style="color: black">sample_2d_input</code> to see what the nearest mode does.</li>
@@ -1610,7 +1610,7 @@ for epoch in range(n_epochs):
 # <div class="alert alert-block alert-info">
 #     <h3>Task 10: Make U-Net building blocks configurable for 2D and 3D data! </h3>
 #     To make the same class usable for 2D and 3D data we will add an argument `ndim` to each building block.
-#     Here you can find information about [torch.nn.Conv3d](https://docs.pytorch.org/docs/2.12/generated/torch.nn.Conv3d.html)
+#     Here you can find information about <a href=https://docs.pytorch.org/docs/2.12/generated/torch.nn.Conv3d.html>torch.nn.Conv3d</a>
 # </div>
 
 
