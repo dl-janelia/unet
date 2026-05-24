@@ -139,6 +139,7 @@ apply_and_show_random_image(up, dataset)
 
 # %% [markdown] tags=[]
 # ### Component 2: Downsampling
+# %% [markdown] tags=[]
 # <img src="./static/conv_layer.png" alt="UNet_down_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # Between levels of the U-Net on the left side, there is a downsample step. Traditionally, this is done with a 2x2 max pooling operation. There are other ways to downsample, for example with average pooling, but we will stick with max pooling for this exercise.
@@ -250,6 +251,8 @@ apply_and_show_random_image(down, dataset)
 
 # %% [markdown] tags=[]
 # ### Component 3: Convolution Block
+
+# %% [markdown] tags=[]
 # <img src="./static/conv_layer.png" alt="UNet_conv_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # #### Convolution
@@ -424,6 +427,7 @@ apply_and_show_random_image(conv, dataset)
 
 # %% [markdown] tags=[]
 # ### Component 4: Skip Connections and Concatenation
+# %% [markdown] tags=[]
 # <img src="./static/concat_layer.png" alt="UNet_concat_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # The skip connections between the left and right side of the U-Net are central to successfully obtaining high-resolution output. At each layer, the output of the left conv block is concatenated to the output of the upsample block on the right side from the last layer below. Since upsampling, especially with the "nearest" algorithm, does not actually add high resolution information, the concatenation of the left side conv block output is crucial to generate high resolution segmentations.
@@ -520,6 +524,7 @@ unet_tests.TestCropAndConcat(CropAndConcat).run()
 
 # %% [markdown] tags=[]
 # ### Component 5: Output Block
+# %% [markdown] tags=[]
 # <img src="./static/final_layer.png" alt="UNet_final_layer" style="width: 1500px;"/>
 # %% [markdown] tags=[]
 # The final block we need to write for our U-Net is the output convolution block. The exact format of output you want depends on your task, so our U-Net must be flexible enough to handle different numbers of out channels and different final activation functions.
