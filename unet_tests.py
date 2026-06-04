@@ -153,43 +153,54 @@ class TestOutputConv:
 
 
 class TestFmaps:
-    """Tests the `compute_fmaps_encoder` / `compute_fmaps_decoder` helpers
-    of a UNet stub directly. Use this in Task 6A, before the full UNet is built.
+    """Tests the `compute_fmaps_encoder` / `compute_fmaps_decoder` helper
+    functions directly. Use this in Task 6A, before the full UNet is built.
     """
 
-    def __init__(self, unetmodule):
-        self.unetmodule = unetmodule
+    def __init__(self, compute_fmaps_encoder, compute_fmaps_decoder):
+        self.compute_fmaps_encoder = compute_fmaps_encoder
+        self.compute_fmaps_decoder = compute_fmaps_decoder
 
     def test_encoder_fmaps(self) -> None:
-        unet = self.unetmodule(5, 1, 1, num_fmaps=17, fmap_inc_factor=4)
+        in_channels, num_fmaps, fmap_inc_factor = 1, 17, 4
         msg = (
-            "compute_fmaps_encoder(0) is incorrect. The first encoder block "
+            "compute_fmaps_encoder(0, ...) is incorrect. The first encoder block "
             "should map in_channels -> num_fmaps."
         )
-        assert unet.compute_fmaps_encoder(0) == (1, 17), msg
+        assert self.compute_fmaps_encoder(
+            0, in_channels, num_fmaps, fmap_inc_factor
+        ) == (1, 17), msg
         msg = (
-            "compute_fmaps_encoder(3) is incorrect. The encoder feature maps "
+            "compute_fmaps_encoder(3, ...) is incorrect. The encoder feature maps "
             "should grow by fmap_inc_factor at every level."
         )
-        assert unet.compute_fmaps_encoder(3) == (272, 1088), msg
+        assert self.compute_fmaps_encoder(
+            3, in_channels, num_fmaps, fmap_inc_factor
+        ) == (272, 1088), msg
         msg = (
-            "compute_fmaps_encoder(4) (the bottom level) is incorrect. "
+            "compute_fmaps_encoder(4, ...) (the bottom level) is incorrect. "
             "The same encoder formula should apply at the bottom of the U-Net."
         )
-        assert unet.compute_fmaps_encoder(4) == (1088, 4352), msg
+        assert self.compute_fmaps_encoder(
+            4, in_channels, num_fmaps, fmap_inc_factor
+        ) == (1088, 4352), msg
 
     def test_decoder_fmaps(self) -> None:
-        unet = self.unetmodule(5, 1, 1, num_fmaps=17, fmap_inc_factor=4)
+        in_channels, num_fmaps, fmap_inc_factor = 1, 17, 4
         msg = (
-            "compute_fmaps_decoder(0) is incorrect. Did you remember to add "
+            "compute_fmaps_decoder(0, ...) is incorrect. Did you remember to add "
             "the skip-connection channels to the input?"
         )
-        assert unet.compute_fmaps_decoder(0) == (85, 17), msg
+        assert self.compute_fmaps_decoder(
+            0, in_channels, num_fmaps, fmap_inc_factor
+        ) == (85, 17), msg
         msg = (
-            "compute_fmaps_decoder(3) is incorrect. The decoder input is "
+            "compute_fmaps_decoder(3, ...) is incorrect. The decoder input is "
             "(skip connection) + (upsampled output of the level below)."
         )
-        assert unet.compute_fmaps_decoder(3) == (5440, 1088), msg
+        assert self.compute_fmaps_decoder(
+            3, in_channels, num_fmaps, fmap_inc_factor
+        ) == (5440, 1088), msg
 
     def run(self):
         self.test_encoder_fmaps()
