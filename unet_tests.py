@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import pytest
 
+
 class TestDown:
     def __init__(self, down_module):
         self.down_module = down_module
@@ -113,7 +114,9 @@ class TestCropAndConcat:
             [torch.ones(12, 14, 13, 18), torch.zeros(12, 5, 13, 18)], dim=1
         )
         msg = "Your CropAndConcat node does not give the expected output"
-        assert torch.equal(out_tensor, expected_tensor_1) or torch.equal(out_tensor, expected_tensor_2), msg
+        assert torch.equal(out_tensor, expected_tensor_1) or torch.equal(
+            out_tensor, expected_tensor_2
+        ), msg
 
     def run(self):
         self.test_crop()
@@ -130,7 +133,7 @@ class TestOutputConv:
         tensor_out = outconv(tensor)
         msg = "The output shape of your output conv is not right."
         assert tensor_out.shape == torch.Size((30, 24, 17)), msg
-    
+
     def test_activation(self) -> None:
         outconv = self.outconvmodule(3, 30, activation=None)
         tensor = torch.ones((3, 24, 17))
@@ -149,28 +152,84 @@ class TestOutputConv:
         print("TESTS PASSED")
 
 
+class TestFmaps:
+    """Tests the `compute_fmaps_encoder` / `compute_fmaps_decoder` helper
+    functions directly. Use this in Task 6A, before the full UNet is built.
+    """
+
+    def __init__(self, compute_fmaps_encoder, compute_fmaps_decoder):
+        self.compute_fmaps_encoder = compute_fmaps_encoder
+        self.compute_fmaps_decoder = compute_fmaps_decoder
+
+    def test_encoder_fmaps(self) -> None:
+        in_channels, num_fmaps, fmap_inc_factor = 1, 17, 4
+        msg = (
+            "compute_fmaps_encoder(0, ...) is incorrect. The first encoder block "
+            "should map in_channels -> num_fmaps."
+        )
+        assert self.compute_fmaps_encoder(
+            0, in_channels, num_fmaps, fmap_inc_factor
+        ) == (1, 17), msg
+        msg = (
+            "compute_fmaps_encoder(3, ...) is incorrect. The encoder feature maps "
+            "should grow by fmap_inc_factor at every level."
+        )
+        assert self.compute_fmaps_encoder(
+            3, in_channels, num_fmaps, fmap_inc_factor
+        ) == (272, 1088), msg
+        msg = (
+            "compute_fmaps_encoder(4, ...) (the bottom level) is incorrect. "
+            "The same encoder formula should apply at the bottom of the U-Net."
+        )
+        assert self.compute_fmaps_encoder(
+            4, in_channels, num_fmaps, fmap_inc_factor
+        ) == (1088, 4352), msg
+
+    def test_decoder_fmaps(self) -> None:
+        in_channels, num_fmaps, fmap_inc_factor = 1, 17, 4
+        msg = (
+            "compute_fmaps_decoder(0, ...) is incorrect. Did you remember to add "
+            "the skip-connection channels to the input?"
+        )
+        assert self.compute_fmaps_decoder(
+            0, in_channels, num_fmaps, fmap_inc_factor
+        ) == (85, 17), msg
+        msg = (
+            "compute_fmaps_decoder(3, ...) is incorrect. The decoder input is "
+            "(skip connection) + (upsampled output of the level below)."
+        )
+        assert self.compute_fmaps_decoder(
+            3, in_channels, num_fmaps, fmap_inc_factor
+        ) == (5440, 1088), msg
+
+    def run(self):
+        self.test_encoder_fmaps()
+        self.test_decoder_fmaps()
+        print("TESTS PASSED")
+
+
 class TestUNet:
     def __init__(self, unetmodule):
         self.unetmodule = unetmodule
 
     def test_fmaps(self) -> None:
         unet = self.unetmodule(5, 1, 1, num_fmaps=17, fmap_inc_factor=4)
-        
+
         # Check encoder layer 3
         msg = "The number of feature maps in the encoder is incorrect"
         assert unet.left_convs[3].in_channels == 272, msg
         assert unet.left_convs[3].out_channels == 1088, msg
-        
+
         # Check decoder layer 3
         msg = "The number of feature maps in the decoder is incorrect"
         assert unet.right_convs[3].in_channels == 5440, msg
         assert unet.right_convs[3].out_channels == 1088, msg
-        
+
         # Check encoder layer 0
         msg = "The number of feature maps in the encoder is incorrect for level 0"
         assert unet.left_convs[0].in_channels == 1, msg
         assert unet.left_convs[0].out_channels == 17, msg
-        
+
         # Check decoder layer 0
         msg = "The number of feature maps in the decoder is incorrect for level 0"
         assert unet.right_convs[0].in_channels == 85, msg
@@ -208,7 +267,7 @@ class TestUNet:
         assert unetvalid(torch.ones((2, 2, 140, 140, 140))).shape == torch.Size(
             (2, 1, 4, 4, 4)
         ), msg
-    
+
     def test_shape_valid_3d_tiled(self) -> None:
         unetvalid = self.unetmodule(
             depth=3,
@@ -270,7 +329,7 @@ class TestUNet:
         self.test_shape_valid_3d()
         self.test_shape_same_3d()
         print("TESTS PASSED")
-    
+
     def run3d_tiled(self):
         self.test_fmaps()
         self.test_shape_same_3d()
