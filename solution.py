@@ -1103,7 +1103,7 @@ apply_and_show_random_image(simple_net, dataset)
 # <li> 3x3 </li>
 # <li> 14x14 </li>
 # <li> 1x1 </li>
-# <li> 8x8 </li>
+# <li> 7x7 </li>
 # <li> 22x22 </li>
 # <li> 22x22 </li>
 # </div>
